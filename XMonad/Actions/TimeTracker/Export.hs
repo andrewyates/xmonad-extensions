@@ -31,7 +31,7 @@ exportTTData :: TTDataExporter -> X ()
 exportTTData exporter = do
     aggregator <- XS.get :: X Aggregator
     res <- io $ exporter $ recentEvents aggregator
-    when True $ XS.put $ cleanAggregator aggregator
+    when res $ XS.put $ cleanAggregator aggregator
 
 handleClientEvent :: Event -> X () -> X ()
 handleClientEvent (ClientMessageEvent {ev_message_type = mt}) action = do
