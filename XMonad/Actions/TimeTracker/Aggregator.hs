@@ -42,12 +42,12 @@ aggregateEvent name time aggr@Aggregator { recentEvents = (curr, (startTime, Not
 
 addEv aggr ev = aggr { recentEvents = ev:(recentEvents aggr) }
 
-closeTimeFrame now Nothing start = (start, Just now)
-closeTimeFrame now (Just lastAct) start = (start, Just lastAct) 
+closeTimeFrame now Nothing        _  start = (start, Just now)
+closeTimeFrame now (Just lastAct) to start = (start, Just $ min (lastAct + to) now)
 
 closeTopFrame aggr@Aggregator { recentEvents = [] } _ = aggr
-closeTopFrame aggr@Aggregator { recentEvents = (curr, (startTime, Nothing)):restEv } time =
-    aggr { recentEvents = (curr, closeTimeFrame time (lastActiveTime aggr) startTime):restEv}
+closeTopFrame aggr@Aggregator { recentEvents = (curr, (startTime, Nothing)):restEv } now =
+    aggr { recentEvents = (curr, closeTimeFrame now (lastActiveTime aggr) (timeout aggr) startTime):restEv}
 
 unidleAggregator time aggr
     | not $ isIdle (timeout aggr) time (lastActiveTime aggr) = aggr { lastActiveTime = Just time }
