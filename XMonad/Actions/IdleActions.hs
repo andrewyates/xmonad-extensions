@@ -42,7 +42,7 @@ isIdleX timeoutSec = do lastTime <- XS.get :: X LastActiveTime
                         now <- io getEpochSeconds
                         return $ isIdle lastTime timeoutSec now
 
--- TODO: this is still far prom being perfect. If all you are doing is moving a mouse
+-- TODO: this is still far from being perfect. If all you are doing is moving a mouse
 --       within one window, not crossing its borders, not pressing any keys or buttons,
 --       this module will assume idleness after the timeout.
 unIdleHook :: TimeSpan -> X () -> Event -> X Mon.All
