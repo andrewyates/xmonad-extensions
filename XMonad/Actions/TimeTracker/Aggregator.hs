@@ -51,7 +51,7 @@ closeTopFrame aggr@Aggregator { recentEvents = (curr, (startTime, Nothing)):rest
 
 unidleAggregator time aggr
     | not $ isIdle (timeout aggr) time (lastActiveTime aggr) = aggr { lastActiveTime = Just time }
-    | True = aggr { lastActiveTime = Just time } `closeTopFrame` time
+    | True = (aggr `closeTopFrame` time) { lastActiveTime = Just time }
 
 createNewAggregator = Aggregator { lastActiveTime = Nothing, recentEvents = [], timeout = 5*60 }
 

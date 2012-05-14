@@ -32,7 +32,6 @@ import qualified XMonad.StackSet as S
 import XMonad.Util.NamedWindows (getName)
 
 import XMonad.Actions.TimeTracker.Aggregator
-import XMonad.Actions.IdleActions (addUnidleAction)
 import qualified XMonad.Util.ExtensibleState as XS
 
 instance ExtensionClass Aggregator where
@@ -56,8 +55,8 @@ addTimeTrackerHook xConfig ttConfig =
     xConfig 
         { logHook = logHook xConfig <+> updateTimeTracker (getStatusString ttConfig)
         , startupHook = setAggrTimeout (idleTime ttConfig) <+> startupHook xConfig
+        , handleEventHook = unIdleHook <+> handleEventHook xConfig
         }
-        `addUnidleAction` (idleTime ttConfig, unIdle)
 
 -------------
 setAggrTimeout sec = do aggregator <- XS.get :: X Aggregator
@@ -82,4 +81,8 @@ getDefaultStatusString = do
     windowTitle <- maybe (return "") (fmap show . getName) . S.peek $ winset
     workspaceTitle <- return . show . S.currentTag $ winset
     return $ windowTitle ++ ", " ++ workspaceTitle
+
+unIdleHook :: Event -> X Mon.All
+unIdleHook ClientMessageEvent{} = return (Mon.All True) -- Ignoring ClientMessageEvents
+unIdleHook event = unIdle >> return (Mon.All True)
 
