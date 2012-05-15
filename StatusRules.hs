@@ -36,7 +36,7 @@ customRules wt ws
     | wt `endsWith` "Gmail - Chromium" = "Email"
     | wt `endsWith` "- Chromium" = "Browsing elsewhere"
     | wt == "Terminal" || wt == "xterm" = "Terminal"
-    | True = "Workspace " ++ ws -- logging only current workspaces by default
+    | otherwise = "Workspace " ++ ws -- logging only current workspaces by default
 
 startsWith :: String -> String -> Bool
 startsWith str = and . zipWith (==) str

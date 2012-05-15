@@ -22,7 +22,7 @@ sendTimerEvent display rWindow messageTypeAtom = do
     print $ "Sending " ++ ttAtomName
     allocaXEvent $ \eventPtr -> do
          setEventType eventPtr clientMessage
-         setClientMessageEvent eventPtr rWindow messageTypeAtom 32 (fromIntegral 0) currentTime
+         setClientMessageEvent eventPtr rWindow messageTypeAtom 32 0 currentTime
          sendEvent display rWindow False structureNotifyMask eventPtr
     sync display False
 

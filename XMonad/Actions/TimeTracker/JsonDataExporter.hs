@@ -10,7 +10,7 @@ jsonDataExporter = trySendJsonData . eventsToJson
 
 eventTupleToJson :: (EventName, (Integer, Maybe Integer)) -> JSObject JSValue
 eventTupleToJson (name, (started, ended)) =
-    toJSObject [("name", JSString $ toJSString $ name),
+    toJSObject [("name", JSString $ toJSString name),
                 ("started_at", JSString $ toJSString $ show started),
                 ("ended_at", JSString $ toJSString $ showEnded ended)]
     where showEnded Nothing    = "Never"

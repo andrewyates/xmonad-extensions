@@ -68,7 +68,7 @@ updateTimeTracker getStatus = do
     aggregator <- XS.get :: X Aggregator
     XS.put $ aggregateEvent statusStr time aggregator
 
-unIdle = do time <- io $ getEpochSeconds
+unIdle = do time <- io getEpochSeconds
             aggregator <- XS.get :: X Aggregator
             XS.put $ unidleAggregator time aggregator
 
