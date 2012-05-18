@@ -46,8 +46,15 @@ isIdleX timeoutSec = do lastTime <- XS.get :: X LastActiveTime
 --       within one window, not crossing its borders, not pressing any keys or buttons,
 --       this module will assume idleness after the timeout.
 unIdleHook :: TimeSpan -> X () -> Event -> X Mon.All
-unIdleHook _ _ ClientMessageEvent{} = return (Mon.All True) -- Ignoring ClientMessageEvents
-unIdleHook timeoutSec action _ = unIdle timeoutSec action >> return (Mon.All True)
+unIdleHook timeoutSec action KeyEvent{}         = doUnidle timeoutSec action
+unIdleHook timeoutSec action ButtonEvent{}      = doUnidle timeoutSec action
+unIdleHook timeoutSec action MotionEvent{}      = doUnidle timeoutSec action
+unIdleHook timeoutSec action CrossingEvent{}    = doUnidle timeoutSec action
+unIdleHook timeoutSec action SelectionRequest{} = doUnidle timeoutSec action
+unIdleHook timeoutSec action PropertyEvent{}    = doUnidle timeoutSec action
+unIdleHook _ _ _ = return (Mon.All True)
+
+doUnidle timeoutSec action = unIdle timeoutSec action >> return (Mon.All True)
 
 unIdle :: TimeSpan -> X () -> X ()
 unIdle timeoutSec action = do lastTime <- XS.get :: X LastActiveTime

@@ -83,6 +83,12 @@ getDefaultStatusString = do
     return $ windowTitle ++ ", " ++ workspaceTitle
 
 unIdleHook :: Event -> X Mon.All
-unIdleHook ClientMessageEvent{} = return (Mon.All True) -- Ignoring ClientMessageEvents
-unIdleHook event = unIdle >> return (Mon.All True)
+unIdleHook KeyEvent{}         = doUnidle
+unIdleHook ButtonEvent{}      = doUnidle
+unIdleHook MotionEvent{}      = doUnidle
+unIdleHook CrossingEvent{}    = doUnidle
+unIdleHook SelectionRequest{} = doUnidle
+unIdleHook PropertyEvent{}    = doUnidle
+unIdleHook _ = return (Mon.All True)
 
+doUnidle = unIdle >> return (Mon.All True)
