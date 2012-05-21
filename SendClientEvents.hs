@@ -31,7 +31,7 @@ main = do
     display <- openDisplay ""
     rWindow  <- rootWindow display $ defaultScreen display
     messageTypeAtom <- internAtom display ttAtomName False
-    forever (threadDelaySeconds interval >> sendTimerEvent display rWindow messageTypeAtom)
+    forever (sendTimerEvent display rWindow messageTypeAtom >> threadDelaySeconds interval)
 
 threadDelaySeconds = threadDelay . (*10^6)
 
