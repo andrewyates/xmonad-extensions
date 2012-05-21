@@ -1,12 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
 module XMonad.Actions.TimeTracker.JsonDataExporter (jsonDataExporter)
 where
+
+import Network.HTTP.Conduit
+import qualified Data.ByteString.Lazy.Char8 as L
 
 import Text.JSON
 
 import XMonad.Actions.TimeTracker.Aggregator
 
-jsonDataExporter :: TTData -> IO Bool
-jsonDataExporter = trySendJsonData . eventsToJson 
+jsonDataExporter :: String -> TTData -> IO Bool
+jsonDataExporter url = trySendJsonData url . eventsToJson 
 
 eventTupleToJson :: (EventName, (Integer, Maybe Integer)) -> JSObject JSValue
 eventTupleToJson (name, (started, ended)) =
@@ -20,12 +24,25 @@ dropCurrentEvent [] = []
 dropCurrentEvent events@[(_, (_, Just _))] = events
 dropCurrentEvent events = tail events
 
-eventsToJson :: TTData -> String
-eventsToJson events = encode $ JSArray $ map ( JSObject . eventTupleToJson) $ dropCurrentEvent events
+eventsToJson :: TTData -> JSValue
+eventsToJson events = JSArray $ map ( JSObject . eventTupleToJson) $ dropCurrentEvent events
 
---- Not sending it anywhere, just dropping into a file - TODO
-filename = "/tmp/a.log"
-trySendJsonData :: String -> IO Bool
-trySendJsonData jsonData = do appendFile filename $ jsonData ++ "\n"
-                              return True
+jsonToByteString json = case readJSON json :: Result L.ByteString of
+                            Ok bs     -> bs
+                            Error str -> L.empty -- Big-big TODO
+
+trySendJsonData :: String -> JSValue -> IO Bool
+trySendJsonData url jsonData = do
+    req <- (parseUrl url) 
+    let request = req { method = "POST"
+                      , requestHeaders = [("Content-Type", "application/json")]
+                      , requestBody = RequestBodyLBS $ jsonToByteString jsonData
+                      }
+
+    res <- withManager $ httpLbs req
+
+    L.putStrLn $ responseBody res
+    return True
+
+
 
