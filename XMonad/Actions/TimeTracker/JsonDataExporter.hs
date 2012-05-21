@@ -40,6 +40,4 @@ trySendJsonData url jsonData = do
                               }
             Response status _ _ _ <- httpLbs request manager
             liftIO $ return $ status == created201
-    where withBody action = case readJSON jsonData :: Result L.ByteString of
-                                 Ok bs     -> action bs
-                                 Error str -> return False
+    where withBody action = action $ L.pack $ encode jsonData
