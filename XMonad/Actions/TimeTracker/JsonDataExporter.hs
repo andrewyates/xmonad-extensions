@@ -2,10 +2,11 @@
 module XMonad.Actions.TimeTracker.JsonDataExporter (jsonDataExporter)
 where
 
+import Control.Monad.Trans (liftIO)
 import Network.HTTP.Conduit
-import qualified Data.ByteString.Lazy.Char8 as L
-
+import Network.HTTP.Types
 import Text.JSON
+import qualified Data.ByteString.Lazy.Char8 as L
 
 import XMonad.Actions.TimeTracker.Aggregator
 
@@ -27,22 +28,18 @@ dropCurrentEvent events = tail events
 eventsToJson :: TTData -> JSValue
 eventsToJson events = JSArray $ map ( JSObject . eventTupleToJson) $ dropCurrentEvent events
 
-jsonToByteString json = case readJSON json :: Result L.ByteString of
-                            Ok bs     -> bs
-                            Error str -> L.empty -- Big-big TODO
-
 trySendJsonData :: String -> JSValue -> IO Bool
 trySendJsonData url jsonData = do
-    req <- (parseUrl url) 
-    let request = req { method = "POST"
-                      , requestHeaders = [("Content-Type", "application/json")]
-                      , requestBody = RequestBodyLBS $ jsonToByteString jsonData
-                      }
-
-    res <- withManager $ httpLbs req
-
-    L.putStrLn $ responseBody res
-    return True
-
-
-
+    withBody $ \body ->
+      case parseUrl url of
+        Nothing -> return False -- Invalid URL
+        Just req -> withManager $ \manager -> do
+            let request = req { method = "POST"
+                              , requestHeaders = [("Content-Type", "application/json")]
+                              , requestBody = RequestBodyLBS body
+                              }
+            Response status _ _ _ <- httpLbs request manager
+            liftIO $ return $ status == created201
+    where withBody action = case readJSON jsonData :: Result L.ByteString of
+                                 Ok bs     -> action bs
+                                 Error str -> return False
