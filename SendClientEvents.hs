@@ -19,7 +19,7 @@ import Graphics.X11.Types
 import XMonad.Actions.TimeTracker.Export (ttAtomName)
 
 sendTimerEvent display rWindow messageTypeAtom = do
-    print $ "Sending " ++ ttAtomName
+    -- print $ "Sending " ++ ttAtomName
     allocaXEvent $ \eventPtr -> do
          setEventType eventPtr clientMessage
          setClientMessageEvent eventPtr rWindow messageTypeAtom 32 0 currentTime
