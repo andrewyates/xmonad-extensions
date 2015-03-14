@@ -12,7 +12,7 @@ dropCurrentEvent events@[(_, (_, Just _))] = events
 dropCurrentEvent events = tail events
 
 ppTuple (name, (started, maybeEnded)) =
-    "Name: " ++ name ++ " [from: " ++ show started ++ " to: " ++ ppEnded ++ " ]\n"
+    name ++ "\SOH" ++ show started ++ "\SOH" ++ ppEnded ++ "\n"
     where ppEnded = case maybeEnded of
                         Nothing -> "Never"
                         Just a  -> show a

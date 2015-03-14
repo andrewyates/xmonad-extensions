@@ -80,7 +80,7 @@ getDefaultStatusString = do
     winset <- gets windowset
     windowTitle <- maybe (return "") (fmap show . getName) . S.peek $ winset
     workspaceTitle <- return . show . S.currentTag $ winset
-    return $ windowTitle ++ ", " ++ workspaceTitle
+    return $ windowTitle ++ "\SOH" ++ workspaceTitle
 
 unIdleHook :: Event -> X Mon.All
 unIdleHook KeyEvent{}         = doUnidle
